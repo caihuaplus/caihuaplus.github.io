@@ -1,0 +1,13 @@
+---
+import FormattedDate from './FormattedDate.astro';
+interface Props { posts: any[]; }
+const { posts } = Astro.props;
+---
+{posts.length === 0 ? <p class="empty">文章正在路上。</p> : <ul class="post-list">
+  {posts.map((post) => <li>
+    <div class="post-meta"><FormattedDate date={post.data.pubDate} /> <span>·</span> <a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div>
+    <h2><a href={`/blog/${post.data.slug}/`}>{post.data.title}</a></h2>
+    <p>{post.data.description}</p>
+    {post.data.tags.length > 0 && <div class="tags">{post.data.tags.map((tag: string) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div>}
+  </li>)}
+</ul>}

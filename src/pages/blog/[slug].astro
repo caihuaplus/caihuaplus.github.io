@@ -1,0 +1,18 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({ params: { slug: post.data.slug }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="article">
+    <header class="article-header"><a class="back-link" href="/blog/">← 全部文章</a><h1>{post.data.title}</h1><p class="article-description">{post.data.description}</p><div class="post-meta"><FormattedDate date={post.data.pubDate} /><span>·</span><a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div></header>
+    <div class="prose"><Content /></div>
+    {post.data.tags.length > 0 && <footer class="article-tags">{post.data.tags.map((tag: string) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</footer>}
+  </article>
+</BaseLayout>

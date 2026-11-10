@@ -1,0 +1,13 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return [...new Set(posts.map((post) => post.data.category))].map((category) => ({ params: { category }, props: { posts: posts.filter((post) => post.data.category === category) } }));
+}
+const { posts } = Astro.props;
+const category = decodeURIComponent(Astro.params.category!);
+posts.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<BaseLayout title={`分类：${category}`}><div class="page-heading"><a class="back-link" href="/blog/">← 全部文章</a><h1>{category}</h1></div><PostList posts={posts} /></BaseLayout>
