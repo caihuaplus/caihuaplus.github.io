@@ -217,20 +217,33 @@ export async function publish({ vault, project, build = true }) {
   const target = path.join(contentRoot, 'generated');
   const stage = path.join(contentRoot, `.publish-stage-${process.pid}-${Date.now()}`);
   const backup = path.join(contentRoot, `.publish-backup-${process.pid}-${Date.now()}`);
+  const dist = path.join(project, 'dist');
+  const distBackup = path.join(project, `.publish-backup-dist-${process.pid}-${Date.now()}`);
   await fs.mkdir(contentRoot, { recursive: true });
   let hadTarget = false;
+  let hadDist = false;
+  let distPrepared = false;
   let installed = false;
   try {
     const result = await generate(vault, stage);
     try { await fs.rename(target, backup); hadTarget = true; } catch (error) { if (error.code !== 'ENOENT') throw error; }
     await fs.rename(stage, target);
     installed = true;
-    if (build) await runBuild(project);
+    if (build) {
+      try { await fs.rename(dist, distBackup); hadDist = true; } catch (error) { if (error.code !== 'ENOENT') throw error; }
+      distPrepared = true;
+      await runBuild(project);
+    }
     if (hadTarget) await fs.rm(backup, { recursive: true, force: true });
+    if (hadDist) await fs.rm(distBackup, { recursive: true, force: true });
     return result;
   } catch (error) {
     if (installed) await fs.rm(target, { recursive: true, force: true });
     if (hadTarget) await fs.rename(backup, target);
+    if (distPrepared) {
+      await fs.rm(dist, { recursive: true, force: true });
+      if (hadDist) await fs.rename(distBackup, dist);
+    }
     await fs.rm(stage, { recursive: true, force: true });
     throw error;
   }

@@ -59,9 +59,12 @@ test('转换失败保留上次成功的内容', async (t) => {
   await fs.writeFile(file, frontmatter('slug: safe-post\npublish: true\n') + '正常正文');
   await publish({ vault: f.vault, project: f.project, build: false });
   const before = await fs.readFile(path.join(f.generated, 'safe-post.md'), 'utf8');
+  await fs.mkdir(path.join(f.project, 'dist'));
+  await fs.writeFile(path.join(f.project, 'dist', 'index.html'), '有效网站');
   await fs.writeFile(file, frontmatter('slug: safe-post\npublish: true\n') + '![[不存在.png]]');
-  await assert.rejects(() => publish({ vault: f.vault, project: f.project, build: false }), /图片不存在/);
+  await assert.rejects(() => publish({ vault: f.vault, project: f.project, build: true }), /图片不存在/);
   assert.equal(await fs.readFile(path.join(f.generated, 'safe-post.md'), 'utf8'), before);
+  assert.equal(await fs.readFile(path.join(f.project, 'dist', 'index.html'), 'utf8'), '有效网站');
 });
 
 test('私人链接、slug 冲突与路径越界均拒绝发布', async (t) => {
@@ -95,8 +98,11 @@ test('Astro 构建失败时恢复上一次生成结果', async (t) => {
   await fs.writeFile(file, frontmatter('slug: stable\npublish: true\n') + '旧内容');
   await publish({ vault: f.vault, project: f.project, build: false });
   const old = await fs.readFile(path.join(f.generated, 'stable.md'), 'utf8');
+  await fs.mkdir(path.join(f.project, 'dist'));
+  await fs.writeFile(path.join(f.project, 'dist', 'index.html'), '上次成功的网站');
   await fs.writeFile(file, frontmatter('slug: stable\npublish: true\n') + '新内容');
   await fs.writeFile(path.join(f.project, 'package.json'), '{"scripts":{"build":"exit 1"}}');
   await assert.rejects(() => publish({ vault: f.vault, project: f.project, build: true }), /构建失败/);
   assert.equal(await fs.readFile(path.join(f.generated, 'stable.md'), 'utf8'), old);
+  assert.equal(await fs.readFile(path.join(f.project, 'dist', 'index.html'), 'utf8'), '上次成功的网站');
 });

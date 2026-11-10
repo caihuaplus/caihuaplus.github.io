@@ -50,7 +50,7 @@ publish: false
 npm run publish:local -- --vault /path/to/obsidian-vault
 ```
 
-转换程序只读 `vault/个人博客/`，写入本项目的 `src/content/blog/generated/`。它先生成临时目录、校验全部引用，再替换生成目录并执行 Astro 构建。解析或构建失败会恢复上一次生成结果。不要手动编辑 `generated/`，否则下次转换会覆盖这些改动。
+转换程序只读 `vault/个人博客/`，写入本项目的 `src/content/blog/generated/`。它先生成临时目录、校验全部引用，再替换生成目录并执行 Astro 构建。解析或构建失败会恢复上一次生成结果与本地 `dist/`。不要手动编辑 `generated/`，否则下次转换会覆盖这些改动。
 
 支持文章 WikiLinks `[[文章]]`、`[[文章|显示文字]]`、本地图片 `![[图片.png]]`、标准 Markdown 图片和指向已公开文章的相对 `.md` 链接。相同文件名的 WikiLinks 如有歧义，须写相对路径。图片必须位于 `个人博客/` 内，且实际存在；仅复制实际引用的 PNG、JPEG、GIF、WebP、AVIF，最大 15 MB。SVG、远程图片、笔记嵌入、私人文章链接、越界路径和原始 HTML 在第一版会报错并停止发布。图片原始字节会公开；发布前请检查图片内容与元数据。
 
