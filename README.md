@@ -56,7 +56,7 @@ npm run publish:local -- --vault /path/to/obsidian-vault
 
 ## GitHub Pages（下一阶段）
 
-计划在公开仓库 `caihuaplus/caihuaplus.github.io` 中保存本项目源码，在私有仓库增加最小发布工作流。公开仓库 Pages 来源设为 **GitHub Actions**，部署使用 Astro 官方 Action；私有工作流将以只对该公开仓库具有 Contents 写权限的细粒度 Token 推送已验证的生成目录。Token 存在私有仓库 Actions Secret 中，不能写入源码、命令输出或日志。**本地阶段尚未添加工作流、Secret，也未首次推送。**
+计划在公开仓库 `caihuaplus/caihuaplus.github.io` 中保存本项目源码，在私有仓库增加最小发布工作流。公开仓库 Pages 来源设为 **GitHub Actions**；本项目已准备 `.github/workflows/deploy.yml`，使用 Astro 官方 Action 构建。私有工作流将以只对该公开仓库具有 Contents 写权限的细粒度 Token 推送已验证的生成目录。Token 存在私有仓库 Actions Secret 中，不能写入源码、命令输出或日志。**当前尚未配置私有工作流和 Secret，也未首次推送。**
 
 Token 到期时，在 GitHub 中创建同等最小权限的新 Token，更新私有仓库对应 Secret，然后手动重跑失败的发布工作流；无需更改文章或 Obsidian Git 配置。
 

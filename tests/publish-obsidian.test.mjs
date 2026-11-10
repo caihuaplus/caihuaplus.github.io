@@ -42,6 +42,11 @@ test('默认不发布；发布、更新、撤回、删除只影响生成目录',
   assert.equal(await fs.readFile(file, 'utf8'), published);
   assert.equal((await fs.readdir(path.join(f.generated, 'assets', 'first-post'))).length, 1);
   assert.doesNotMatch(JSON.stringify(await fs.readdir(f.generated)), /未引用|私人文件/);
+  const oldImage = (await fs.readdir(path.join(f.generated, 'assets', 'first-post')))[0];
+  await fs.writeFile(path.join(f.blog, 'assets', '中文 图片.png'), Buffer.concat([png, Buffer.from('image-update')]));
+  await publish({ vault: f.vault, project: f.project, build: false });
+  const newImage = (await fs.readdir(path.join(f.generated, 'assets', 'first-post')))[0];
+  assert.notEqual(newImage, oldImage);
   await fs.writeFile(file, published.replace('一级标题', '修改后的标题'));
   await publish({ vault: f.vault, project: f.project, build: false });
   assert.match(await fs.readFile(path.join(f.generated, 'first-post.md'), 'utf8'), /修改后的标题/);
@@ -105,4 +110,23 @@ test('Astro 构建失败时恢复上一次生成结果', async (t) => {
   await assert.rejects(() => publish({ vault: f.vault, project: f.project, build: true }), /构建失败/);
   assert.equal(await fs.readFile(path.join(f.generated, 'stable.md'), 'utf8'), old);
   assert.equal(await fs.readFile(path.join(f.project, 'dist', 'index.html'), 'utf8'), '上次成功的网站');
+});
+
+test('符号链接不能把博客目录外的笔记或图片带入公开结果', async (t) => {
+  const f = await fixture(t);
+  const file = path.join(f.blog, '安全文章.md');
+  const source = frontmatter('slug: safe\npublish: true\n') + '原始内容';
+  await fs.writeFile(file, source);
+  await publish({ vault: f.vault, project: f.project, build: false });
+  const before = await fs.readFile(path.join(f.generated, 'safe.md'), 'utf8');
+  const noteLink = path.join(f.blog, '伪装笔记.md');
+  await fs.symlink(path.join(f.vault, '私人文件.md'), noteLink);
+  await assert.rejects(() => publish({ vault: f.vault, project: f.project, build: false }), /符号链接/);
+  await fs.rm(noteLink);
+  await fs.writeFile(path.join(f.vault, '私人图片.png'), png);
+  await fs.symlink(path.join(f.vault, '私人图片.png'), path.join(f.blog, 'assets', '偷取.png'));
+  await fs.writeFile(file, frontmatter('slug: safe\npublish: true\n') + '![[偷取.png]]');
+  await assert.rejects(() => publish({ vault: f.vault, project: f.project, build: false }), /越过博客目录/);
+  assert.equal(await fs.readFile(path.join(f.generated, 'safe.md'), 'utf8'), before);
+  assert.deepEqual((await fs.readdir(f.generated)).filter((name) => name.endsWith('.md')), ['safe.md']);
 });
