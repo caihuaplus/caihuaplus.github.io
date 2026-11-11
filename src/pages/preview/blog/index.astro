@@ -1,0 +1,4 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';import PostList from '../../../components/PostList.astro';import {samplePosts} from '../../../data/themePreview';
+---
+<BaseLayout title="全部文章 · 主题预览"><div class="page-heading"><p class="eyebrow">ALL POSTS</p><h1>全部文章</h1><p>虚构文章，用于检视列表、日期与分类标签。</p></div><PostList posts={samplePosts} preview /></BaseLayout>

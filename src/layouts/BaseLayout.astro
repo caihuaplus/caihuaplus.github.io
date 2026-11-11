@@ -1,6 +1,7 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
 interface Props { title?: string; description?: string; }
@@ -8,6 +9,20 @@ const { title, description } = Astro.props;
 ---
 <!doctype html>
 <html lang="zh-CN">
-  <head><BaseHead title={title} description={description} /></head>
-  <body><Header /><main class="container"><slot /></main><Footer /></body>
+  <head><BaseHead title={title} description={description} /><script is:inline>try{document.documentElement.dataset.theme=localStorage.getItem('blog-theme')|| (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{document.documentElement.dataset.theme='light'}</script></head>
+  <body><Header /><div class="site-grid"><Sidebar /><main class="site-main"><slot /></main></div><div class="footer-wrap"><Footer /></div>
+  <script is:inline>
+    const themeButton=document.querySelector('#theme-toggle');
+    themeButton?.addEventListener('click',()=>{
+      const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+      const apply=()=>{document.documentElement.dataset.theme=next;try{localStorage.setItem('blog-theme',next)}catch{}};
+      if(!matchMedia('(prefers-reduced-motion: reduce)').matches && document.startViewTransition){
+        const transition=document.startViewTransition(apply);
+        transition.ready.then(()=>{document.documentElement.animate([{clipPath:next==='dark'?'inset(0 0 100% 0)':'inset(100% 0 0 0)'},{clipPath:'inset(0 0 0 0)'}],{duration:480,easing:'ease-in-out',pseudoElement:'::view-transition-new(root)'})}).catch(()=>{});
+      }else apply();
+    });
+    const menuButton=document.querySelector('#menu-toggle'); const menu=document.querySelector('#mobile-menu');
+    menuButton?.addEventListener('click',()=>{const open=menu.hasAttribute('hidden');menu.toggleAttribute('hidden',!open);menuButton.setAttribute('aria-expanded',String(open))});
+    menu?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.setAttribute('hidden','');menuButton?.setAttribute('aria-expanded','false')}));
+  </script></body>
 </html>

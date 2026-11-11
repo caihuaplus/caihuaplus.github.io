@@ -1,0 +1,5 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';import {samplePosts} from '../../../data/themePreview';
+const categories=[...new Set(samplePosts.map(p=>p.data.category))];
+---
+<BaseLayout title="分类 · 主题预览"><div class="page-heading"><p class="eyebrow">CATEGORIES</p><h1>分类</h1><p>沿着不同的线索继续读。</p></div><div class="taxonomy-list">{categories.map(category=><a href="/preview/blog/"><span>{category}</span><small>1 篇文章 ↗</small></a>)}</div></BaseLayout>
