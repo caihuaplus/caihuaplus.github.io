@@ -4,10 +4,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PostList from '../components/PostList.astro';
 import { SITE_DESCRIPTION } from '../consts';
 import { newestFirst } from '../utils/post-order.mjs';
+import { getDiscoveryData } from '../utils/random-discovery.mjs';
 const posts = (await getCollection('blog')).sort(newestFirst);
+const { allUrls, categories } = getDiscoveryData(posts);
 ---
 <BaseLayout>
   <section class="home-intro"><p class="eyebrow">WELCOME / 欢迎来坐坐</p><h1>日常的边上，<br /><em>总有一些番外。</em></h1><p>{SITE_DESCRIPTION} 在这里写生活、读书、电影，也记下一些技术和独立开发的尝试。</p><a class="inline-link" href="/blog/">去看看文章 <span>↗</span></a></section>
-  <section class="home-categories"><div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>随意逛逛</h2></div><a href="/category/">所有分类 ↗</a></div><div class="category-tiles"><a href="/category/">生活随笔 <span>日子里的小片段</span></a><a href="/category/">阅读与影视 <span>读过、看过、想过</span></a><a href="/category/">技术与创作 <span>小项目和新发现</span></a></div></section>
+  {categories.length >= 2 && <section class="home-categories" aria-labelledby="random-discovery-heading">
+    <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2 id="random-discovery-heading"><a class="random-heading-link" href={allUrls[0]} data-random-urls={JSON.stringify(allUrls)} aria-label="随便逛逛：随机阅读一篇公开文章">随便逛逛 <span aria-hidden="true">↝</span></a></h2></div></div>
+    <div class="category-tiles">{categories.map(({ name, urls }) => <a href={urls[0]} data-random-urls={JSON.stringify(urls)} aria-label={`随机阅读「${name}」分类的文章`}><strong>{name}</strong><span>{urls.length} 篇文章 · 随机阅读</span></a>)}</div>
+  </section>}
   <section class="home-recent"><div class="section-heading"><div><p class="eyebrow">LATEST STORIES</p><h2>最近写下的</h2></div><a href="/blog/">全部文章 ↗</a></div><PostList posts={posts.slice(0,5)} /></section>
 </BaseLayout>
+<script>
+  import { pickRandomUrl } from '../utils/random-discovery.mjs';
+
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-random-urls]')) {
+    const urls = JSON.parse(link.dataset.randomUrls ?? '[]') as string[];
+    link.addEventListener('click', () => {
+      const url = pickRandomUrl(urls);
+      if (url) link.href = url;
+    });
+  }
+</script>
