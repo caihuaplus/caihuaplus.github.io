@@ -5,18 +5,31 @@ function initArticleReader() {
   dispose?.();
   const article = document.querySelector<HTMLElement>('[data-reader-article]');
   if (!article) return;
+  const prose = article.querySelector<HTMLElement>('.prose');
+  if (!prose) return;
 
   const controller = new AbortController();
   const { signal } = controller;
   const headings = [...article.querySelectorAll<HTMLElement>('.prose h2[id], .prose h3[id]')];
   const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
   const desktopToc = document.querySelector<HTMLElement>('.reader-desktop-toc .toc-scroll');
+  const desktopTocColumn = document.querySelector<HTMLElement>('.reader-desktop-toc');
+  const desktopProgress = desktopTocColumn?.querySelector<HTMLButtonElement>('.reading-progress');
   const mobileToc = document.querySelector<HTMLDetailsElement>('.reader-mobile-toc');
   const progressButtons = [...document.querySelectorAll<HTMLButtonElement>('.reading-progress')];
   const layoutButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-reader-choice]')];
   let frame = 0;
   let activeIndex = -1;
   let lastPercent = -1;
+  const positionDesktopProgress = () => {
+    if (!desktopTocColumn || !desktopProgress) return;
+    const column = desktopTocColumn.getBoundingClientRect();
+    desktopProgress.style.left = `${column.left + column.width / 2}px`;
+  };
+  const layoutObserver = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(positionDesktopProgress);
+  if (desktopTocColumn) layoutObserver?.observe(desktopTocColumn);
+  const readerLayout = document.querySelector<HTMLElement>('.reader-layout');
+  if (readerLayout) layoutObserver?.observe(readerLayout);
 
   const headerOffset = () => (document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 70) + 18;
   const behavior = (): ScrollBehavior => reducedMotion.matches ? 'instant' : 'smooth';
@@ -51,19 +64,26 @@ function initArticleReader() {
     }
     if (index >= 0) showActive(index);
 
-    const articleTop = article.getBoundingClientRect().top + window.scrollY;
-    const articleEnd = articleTop + article.offsetHeight;
-    const endScroll = Math.max(articleTop + 1, articleEnd - window.innerHeight);
-    const progress = Math.max(0, Math.min(1, (window.scrollY - articleTop + offset) / (endScroll - articleTop + offset)));
+    const proseTop = prose.getBoundingClientRect().top + window.scrollY;
+    const proseBottom = proseTop + prose.offsetHeight;
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const visibleEnd = Math.max(1, Math.min(maxScroll, proseBottom - window.innerHeight + 80));
+    const naturalStart = Math.max(0, proseTop - headerOffset() - 48);
+    const startScroll = Math.min(naturalStart, Math.max(0, visibleEnd - Math.min(180, maxScroll / 2)));
+    const endScroll = Math.max(startScroll + 1, visibleEnd);
+    const progress = Math.max(0, Math.min(1, (window.scrollY - startScroll) / (endScroll - startScroll)));
     const percent = Math.round(progress * 100);
+    const visible = window.scrollY > 120;
+    progressButtons.forEach((button) => {
+      button.querySelector<SVGCircleElement>('.progress-arc')?.style.setProperty('stroke-dashoffset', String(125.66 * (1 - progress)));
+      button.classList.toggle('is-visible', visible);
+    });
     if (percent !== lastPercent) {
       lastPercent = percent;
       progressButtons.forEach((button) => {
-        button.querySelector<SVGCircleElement>('.progress-arc')?.style.setProperty('stroke-dashoffset', String(125.66 * (1 - progress)));
         button.setAttribute('aria-label', `返回顶部，已阅读 ${percent}%`);
       });
     }
-    document.querySelector<HTMLElement>('.mobile-reading-progress')?.classList.toggle('is-visible', window.scrollY > 180);
   }
 
   function schedule() {
@@ -87,7 +107,7 @@ function initArticleReader() {
 
   progressButtons.forEach((button) => button.addEventListener('click', () => {
     history.replaceState(null, '', location.pathname + location.search);
-    window.scrollTo({ top: 0, behavior: behavior() });
+    window.scrollTo({ top: Math.max(0, article.getBoundingClientRect().top + window.scrollY - headerOffset()), behavior: behavior() });
   }, { signal }));
 
   const initialLayout = document.documentElement.dataset.readerLayout === 'b' ? 'b' : 'a';
@@ -101,14 +121,16 @@ function initArticleReader() {
       const url = new URL(location.href);
       url.searchParams.set('layout', choice);
       history.replaceState(null, '', url);
+      positionDesktopProgress();
       schedule();
     }, { signal });
   });
 
   window.addEventListener('scroll', schedule, { passive: true, signal });
-  window.addEventListener('resize', schedule, { passive: true, signal });
+  window.addEventListener('resize', () => { positionDesktopProgress(); schedule(); }, { passive: true, signal });
+  positionDesktopProgress();
   update();
-  dispose = () => { controller.abort(); if (frame) cancelAnimationFrame(frame); frame = 0; };
+  dispose = () => { controller.abort(); layoutObserver?.disconnect(); if (frame) cancelAnimationFrame(frame); frame = 0; };
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initArticleReader, { once: true });

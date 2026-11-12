@@ -31,7 +31,10 @@
 .reader-desktop-toc .toc-scroll a:hover,.reader-desktop-toc .toc-scroll a:focus-visible,.reader-mobile-toc nav a:hover,.reader-mobile-toc nav a:focus-visible{opacity:1;color:var(--accent)}
 .reader-mobile-toc nav{max-height:45vh;overflow-y:auto;overscroll-behavior:contain}
 .toc-empty{font-size:12px;color:var(--muted)}
-.reading-progress{position:relative;display:grid;place-items:center;width:46px;height:46px;margin-top:18px;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--text);box-shadow:var(--shadow);cursor:pointer;transition:background .2s ease,color .2s ease,opacity .2s ease,visibility .2s ease}
+.reading-progress{position:relative;display:grid;place-items:center;width:46px;height:46px;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--text);box-shadow:var(--shadow);cursor:pointer;transition:background .2s ease,color .2s ease,opacity .2s ease,visibility .2s ease}
+.reading-progress.is-visible{opacity:1;visibility:visible;pointer-events:auto}
+.reader-desktop-toc .reading-progress{position:fixed;left:0;bottom:40px;z-index:35;margin:0;transform:translateX(-50%);opacity:0;visibility:hidden;pointer-events:none}
+.reader-desktop-toc .reading-progress.is-visible{opacity:1;visibility:visible;pointer-events:auto}
 .reading-progress:hover,.reading-progress:focus-visible{background:var(--accent-soft);color:var(--accent)}
 .reading-progress svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
 .reading-progress circle{fill:none;stroke-width:3}
@@ -42,8 +45,10 @@
 @media(max-width:1100px){
   .reader-layout{display:block;max-width:800px}
   .reader-desktop-toc{display:none}
-  .mobile-reading-progress{display:grid;position:fixed;right:20px;bottom:20px;z-index:45;margin:0;opacity:0;visibility:hidden;pointer-events:none}
-  .mobile-reading-progress.is-visible{opacity:1;visibility:visible;pointer-events:auto}
+  .mobile-reading-progress{display:grid;position:fixed;right:20px;bottom:max(24px,calc(16px + env(safe-area-inset-bottom,0px)));z-index:45;margin:0;opacity:0;visibility:hidden;pointer-events:none}
+}
+@media(min-width:651px) and (max-width:950px){
+  .reader-layout{padding-right:56px}
 }
 @media(max-width:840px){
   .site-grid--reading{display:block}
@@ -52,9 +57,11 @@
   .reader-layout-controls{display:none}
 }
 @media(max-width:650px){
-  .mobile-reading-progress{top:12px;bottom:auto;right:104px;width:38px;height:38px;box-shadow:none;background:var(--surface-soft)}
+  .article-reading-page{padding-right:36px}
+  .mobile-reading-progress{right:max(8px,env(safe-area-inset-right,0px));bottom:max(24px,calc(16px + env(safe-area-inset-bottom,0px)));width:40px;height:40px}
   .mobile-reading-progress span{font-size:19px}
 }
+@media(max-width:380px){.article-reading-page{padding-right:38px}}
 @media(prefers-reduced-motion:reduce){
   ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:.01ms!important}
   .site-grid--reading,.site-grid--reading .profile-sidebar,.reader-layout,.reader-mini-nav,.reader-desktop-toc .toc-scroll a,.reader-mobile-toc nav a,.reading-progress,.reading-progress .progress-arc{transition-duration:.01ms!important}
