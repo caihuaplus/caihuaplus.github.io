@@ -4,10 +4,17 @@ interface Props { posts: any[]; preview?: boolean; }
 const { posts, preview = false } = Astro.props;
 ---
 {posts.length === 0 ? <p class="empty-state">文章正在路上。先在这里坐一会儿吧。</p> : <div class="post-list">
-  {posts.map((post) => <article class="post-card">
-    <div class="post-card-body"><div class="post-meta"><FormattedDate date={post.data.pubDate} /><span class="meta-dot">·</span><a href={preview ? "/preview/category/" : `/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div>
-    <h2><a href={preview ? '/preview/article/' : `/blog/${post.data.slug}/`}>{post.data.title}</a></h2><p>{post.data.description}</p>
-    <div class="post-bottom"><div class="tags">{post.data.tags.map((tag: string) => <a href={preview ? "/preview/tag/" : `/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div><a class="read-more" href={preview ? '/preview/article/' : `/blog/${post.data.slug}/`}>继续阅读 ↗</a></div></div>
-    <a class="post-accent" href={preview ? '/preview/article/' : `/blog/${post.data.slug}/`} aria-label={`阅读：${post.data.title}`}><span>读一段番外</span></a>
-  </article>)}
+  {posts.map((post) => {
+    const url = preview ? '/preview/article/' : `/blog/${post.data.slug}/`;
+    // The current published collection has no cover field. Mock covers stay in preview data.
+    const cover = preview ? post.data.previewCover : undefined;
+    return <article class:list={['post-card', { 'has-cover': Boolean(cover) }]}>
+      <div class="post-card-body">
+        <h2><a class="post-title-link" href={url}>{post.data.title}<span class="post-inline-arrow" aria-hidden="true">›</span></a></h2>
+        <div class="post-meta"><FormattedDate date={post.data.pubDate} /><span class="meta-dot">·</span><a href={preview ? '/preview/category/' : `/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a><span class="post-card-tags">{post.data.tags.map((tag: string) => <a href={preview ? '/preview/tag/' : `/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</span></div>
+        <p class="post-summary">{post.data.description}</p>
+      </div>
+      {cover ? <a class="post-entry post-cover" href={url} aria-label={`阅读：${post.data.title}`}><img src={cover} alt="虚构文章的预览封面" loading="lazy" /><span class="cover-arrow" aria-hidden="true">›</span></a> : <a class="post-entry post-enter" href={url} aria-label={`阅读：${post.data.title}`}><span aria-hidden="true">›</span></a>}
+    </article>;
+  })}
 </div>}
