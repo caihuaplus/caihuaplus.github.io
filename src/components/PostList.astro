@@ -10,7 +10,7 @@ const { posts, preview = false } = Astro.props;
     const cover = preview ? post.data.previewCover : undefined;
     return <article class:list={['post-card', { 'has-cover': Boolean(cover) }]}>
       <div class="post-card-body">
-        <h2><a class="post-title-link" href={url}>{post.data.title}<span class="post-inline-arrow" aria-hidden="true">›</span></a></h2>
+        <h2><a class="post-title-link" href={url}><span class="post-title-text" transition:name={`post-title-${post.data.slug}`}>{post.data.title}</span><span class="post-inline-arrow" aria-hidden="true">›</span></a></h2>
         <div class="post-meta"><FormattedDate date={post.data.pubDate} /><span class="meta-dot">·</span><a href={preview ? '/preview/category/' : `/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a><span class="post-card-tags">{post.data.tags.map((tag: string) => <a href={preview ? '/preview/tag/' : `/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</span></div>
         <p class="post-summary">{post.data.description}</p>
       </div>

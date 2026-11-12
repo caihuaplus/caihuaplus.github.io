@@ -4,13 +4,14 @@ import Header from '../components/Header.astro';
 import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
-interface Props { title?: string; description?: string; }
-const { title, description } = Astro.props;
+import '../styles/reader-interactions.css';
+interface Props { title?: string; description?: string; reading?: boolean; }
+const { title, description, reading = false } = Astro.props;
 ---
 <!doctype html>
 <html lang="zh-CN">
-  <head><BaseHead title={title} description={description} /><script is:inline>try{document.documentElement.dataset.theme=localStorage.getItem('blog-theme')|| (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{document.documentElement.dataset.theme='light'}</script></head>
-  <body><Header /><div class="site-grid"><Sidebar /><main class="site-main"><slot /></main></div><div class="footer-wrap"><Footer /></div>
+  <head><BaseHead title={title} description={description} /><script is:inline>try{document.documentElement.dataset.theme=localStorage.getItem('blog-theme')|| (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{document.documentElement.dataset.theme='light'}try{if(/^\/blog\/[^/]+\/?$/.test(location.pathname)){const requested=new URLSearchParams(location.search).get('layout');document.documentElement.dataset.readerLayout=requested==='a'||requested==='b'?requested:sessionStorage.getItem('reader-layout')==='b'?'b':'a'}}catch{document.documentElement.dataset.readerLayout='a'}</script></head>
+  <body><Header /><div class:list={['site-grid', { 'site-grid--reading': reading }]}><Sidebar /><main class="site-main"><slot /></main></div><div class="footer-wrap"><Footer /></div>
   <script is:inline>
     const themeButton=document.querySelector('#theme-toggle');
     themeButton?.addEventListener('click',()=>{
