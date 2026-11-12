@@ -1,0 +1,9 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { newestFirst } from '../utils/post-order.mjs';
+const posts=(await getCollection('blog')).sort(newestFirst);
+const years=[...new Set(posts.map((p)=>p.data.pubDate.getUTCFullYear()))];
+---
+<BaseLayout title="归档"><div class="page-heading"><p class="eyebrow">ARCHIVE</p><h1>归档</h1><p>按时间翻看写过的东西。</p></div>{years.length?years.map(year=><section class="archive-year"><h2>{year}</h2><ul>{posts.filter(p=>p.data.pubDate.getUTCFullYear()===year).map(p=><li><FormattedDate date={p.data.pubDate}/><a href={`/blog/${p.data.slug}/`}>{p.data.title}</a></li>)}</ul></section>):<p class="empty-state">文章发布后会出现在这里。</p>}</BaseLayout>

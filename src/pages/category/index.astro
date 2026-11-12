@@ -1,0 +1,6 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const posts=await getCollection('blog');const categories=[...new Set(posts.map(p=>p.data.category))];
+---
+<BaseLayout title="分类"><div class="page-heading"><p class="eyebrow">CATEGORIES</p><h1>分类</h1><p>沿着不同的线索继续读。</p></div>{categories.length?<div class="taxonomy-list">{categories.map(category=><a href={`/category/${encodeURIComponent(category)}/`}><span>{category}</span><small>{posts.filter(p=>p.data.category===category).length} 篇文章 ↗</small></a>)}</div>:<p class="empty-state">文章发布后会出现分类。</p>}</BaseLayout>

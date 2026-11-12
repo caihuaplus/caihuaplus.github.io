@@ -1,0 +1,11 @@
+---
+interface Props { mobile?: boolean }
+const { mobile = false } = Astro.props;
+---
+<button type="button" class:list={['reading-progress', { 'mobile-reading-progress': mobile }]} aria-label="返回顶部，已阅读 0%" title="返回顶部">
+  <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <circle class="progress-track" cx="24" cy="24" r="20" />
+    <circle class="progress-arc" cx="24" cy="24" r="20" />
+  </svg>
+  <span aria-hidden="true">↑</span>
+</button>

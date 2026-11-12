@@ -3,10 +3,11 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostList from '../components/PostList.astro';
 import { SITE_DESCRIPTION } from '../consts';
-const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+import { newestFirst } from '../utils/post-order.mjs';
+const posts = (await getCollection('blog')).sort(newestFirst);
 ---
 <BaseLayout>
-  <section class="hero"><p class="eyebrow">个人博客</p><h1>认真记录，慢慢生长。</h1><p>{SITE_DESCRIPTION}</p><a class="text-link" href="/blog/">浏览全部文章 →</a></section>
-  <section class="section-heading"><h2>最近文章</h2><a href="/blog/">查看全部 →</a></section>
-  <PostList posts={posts.slice(0, 5)} />
+  <section class="home-intro"><p class="eyebrow">WELCOME / 欢迎来坐坐</p><h1>日常的边上，<br /><em>总有一些番外。</em></h1><p>{SITE_DESCRIPTION} 在这里写生活、读书、电影，也记下一些技术和独立开发的尝试。</p><a class="inline-link" href="/blog/">去看看文章 <span>↗</span></a></section>
+  <section class="home-categories"><div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>随意逛逛</h2></div><a href="/category/">所有分类 ↗</a></div><div class="category-tiles"><a href="/category/">生活随笔 <span>日子里的小片段</span></a><a href="/category/">阅读与影视 <span>读过、看过、想过</span></a><a href="/category/">技术与创作 <span>小项目和新发现</span></a></div></section>
+  <section class="home-recent"><div class="section-heading"><div><p class="eyebrow">LATEST STORIES</p><h2>最近写下的</h2></div><a href="/blog/">全部文章 ↗</a></div><PostList posts={posts.slice(0,5)} /></section>
 </BaseLayout>

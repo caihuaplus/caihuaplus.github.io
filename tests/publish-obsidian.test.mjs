@@ -53,6 +53,7 @@ test('默认不发布；发布、更新、撤回、删除只影响生成目录',
   await fs.writeFile(file, draft);
   await publish({ vault: f.vault, project: f.project, build: false });
   assert.deepEqual((await fs.readdir(f.generated)).filter((name) => name.endsWith('.md')), ['second-post.md']);
+  await assert.rejects(fs.access(path.join(f.generated, 'assets', 'first-post')), { code: 'ENOENT' });
   await fs.rm(second);
   await publish({ vault: f.vault, project: f.project, build: false });
   assert.deepEqual(await fs.readdir(f.generated), []);

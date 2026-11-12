@@ -1,13 +1,39 @@
 ---
+import type { CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
-interface Props { posts: any[]; }
-const { posts } = Astro.props;
+
+interface CardExtras {
+  coverSrc?: string;
+  pageViews?: number; // Page visits, not unique visitors.
+}
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+  cardExtras?: Record<string, CardExtras>;
+}
+const { posts, cardExtras = {} } = Astro.props;
 ---
-{posts.length === 0 ? <p class="empty">文章正在路上。</p> : <ul class="post-list">
-  {posts.map((post) => <li>
-    <div class="post-meta"><FormattedDate date={post.data.pubDate} /> <span>·</span> <a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div>
-    <h2><a href={`/blog/${post.data.slug}/`}>{post.data.title}</a></h2>
-    <p>{post.data.description}</p>
-    {post.data.tags.length > 0 && <div class="tags">{post.data.tags.map((tag: string) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div>}
-  </li>)}
-</ul>}
+{posts.length === 0 ? <p class="empty-state">文章正在路上。先在这里坐一会儿吧。</p> : <div class="post-list">
+  {posts.map((post) => {
+    const url = `/blog/${post.data.slug}/`;
+    const { coverSrc, pageViews } = cardExtras[post.data.slug] ?? {};
+    const hasPageViews = typeof pageViews === 'number' && Number.isSafeInteger(pageViews) && pageViews >= 0;
+    return <article class:list={['post-card', { 'has-cover': Boolean(coverSrc) }]}>
+      <div class="post-card-body">
+        <a class="post-card-main" href={url} aria-label={`阅读：${post.data.title}`}>
+          <h2><span class="post-title-text" transition:name={`post-title-${post.data.slug}`}>{post.data.title}</span><span class="post-inline-arrow" aria-hidden="true">›</span></h2>
+          <p class="post-summary">{post.data.description}</p>
+        </a>
+        <div class="post-card-footer">
+          {hasPageViews && <span class="post-page-views" aria-label={`页面访问次数 ${pageViews}`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12s3.6-5.5 10-5.5S22 12 22 12s-3.6 5.5-10 5.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+            <span>{pageViews.toLocaleString('zh-CN')}</span>
+          </span>}
+          <div class="post-card-meta"><FormattedDate date={post.data.pubDate} /><span class="meta-dot" aria-hidden="true">·</span><a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a><span class="post-card-tags">{post.data.tags.map((tag) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</span></div>
+        </div>
+      </div>
+      {coverSrc
+        ? <a class="post-entry post-cover" href={url} aria-label={`阅读：${post.data.title}`}><img src={coverSrc} alt="" loading="lazy" decoding="async" /><span class="cover-arrow" aria-hidden="true">›</span></a>
+        : <a class="post-entry post-enter" href={url} aria-label={`阅读：${post.data.title}`}><span aria-hidden="true">›</span></a>}
+    </article>;
+  })}
+</div>}

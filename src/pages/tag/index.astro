@@ -1,0 +1,6 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const posts=await getCollection('blog');const tags=[...new Set(posts.flatMap(p=>p.data.tags))];
+---
+<BaseLayout title="标签"><div class="page-heading"><p class="eyebrow">TAGS</p><h1>标签</h1><p>一些反复出现的词。</p></div>{tags.length?<div class="tag-cloud">{tags.map(tag=><a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div>:<p class="empty-state">文章发布后会出现标签。</p>}</BaseLayout>

@@ -1,18 +1,47 @@
 ---
+import '../../styles/reading-fonts.css';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
+import ReadingProgressButton from '../../components/ReadingProgressButton.astro';
+import { oldestFirst } from '../../utils/post-order.mjs';
+
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map((post) => ({ params: { slug: post.data.slug }, props: { post } }));
+  const posts = (await getCollection('blog')).sort(oldestFirst);
+  return posts.map((post, index) => ({
+    params: { slug: post.data.slug },
+    props: { post, previousPost: posts[index - 1] ?? null, nextPost: posts[index + 1] ?? null },
+  }));
 }
-const { post } = Astro.props;
-const { Content } = await render(post);
+
+const { post, previousPost, nextPost } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 ---
-<BaseLayout title={post.data.title} description={post.data.description}>
-  <article class="article">
-    <header class="article-header"><a class="back-link" href="/blog/">← 全部文章</a><h1>{post.data.title}</h1><p class="article-description">{post.data.description}</p><div class="post-meta"><FormattedDate date={post.data.pubDate} /><span>·</span><a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div></header>
-    <div class="prose"><Content /></div>
-    {post.data.tags.length > 0 && <footer class="article-tags">{post.data.tags.map((tag: string) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</footer>}
-  </article>
+<BaseLayout title={post.data.title} description={post.data.description} reading>
+  <div class="reading-layout reader-layout">
+    <article class="article article--mixed article-reading-page" data-reader-article>
+      <div class="reader-topline">
+        <a class="back-link" href="/blog/">← 全部文章</a>
+      </div>
+      <header class="article-header">
+        <h1><span class="article-title-text" transition:name={`post-title-${post.data.slug}`}>{post.data.title}</span></h1>
+        <div class="post-meta"><FormattedDate date={post.data.pubDate} /><span>·</span><a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div>
+        <div class="tags">{post.data.tags.map((tag: string) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div>
+      </header>
+      {toc.length > 0 && <details class="mobile-toc reader-mobile-toc"><summary>目录</summary><nav aria-label="手机文章目录">{toc.map((h) => <a class:list={{ 'toc-sub': h.depth === 3 }} href={`#${h.slug}`} data-toc-link>{h.text}</a>)}</nav></details>}
+      <div class="prose"><Content /></div>
+      <nav class="article-neighbors" aria-label="文章导航">
+        {previousPost ? <a class="article-neighbor article-neighbor--previous" href={`/blog/${previousPost.data.slug}/`}><span class="article-neighbor-label">← 上一篇</span><strong>{previousPost.data.title}</strong></a> : <span class="article-neighbor-empty" aria-hidden="true"></span>}
+        {nextPost ? <a class="article-neighbor article-neighbor--next" href={`/blog/${nextPost.data.slug}/`}><span class="article-neighbor-label">下一篇 →</span><strong>{nextPost.data.title}</strong></a> : <a class="article-neighbor article-neighbor--next article-neighbor--all" href="/blog/"><span class="article-neighbor-label">继续看其他文章 →</span><strong>全部文章</strong></a>}
+      </nav>
+    </article>
+    <aside class="desktop-toc reader-desktop-toc" aria-label="文章目录">
+      <h2>目录</h2>
+      {toc.length > 0 ? <nav class="toc-scroll" aria-label="文章目录" tabindex="0">{toc.map((h) => <a class:list={{ 'toc-sub': h.depth === 3 }} href={`#${h.slug}`} data-toc-link>{h.text}</a>)}</nav> : <p class="toc-empty">这篇文章没有小标题。</p>}
+      <ReadingProgressButton />
+    </aside>
+  </div>
+  <ReadingProgressButton mobile />
 </BaseLayout>
+<script>import '../../scripts/article-reader.ts';</script>

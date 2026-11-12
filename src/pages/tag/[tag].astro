@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostList from '../../components/PostList.astro';
+import { newestFirst } from '../../utils/post-order.mjs';
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
@@ -9,6 +10,6 @@ export async function getStaticPaths() {
 }
 const { posts } = Astro.props;
 const tag = decodeURIComponent(Astro.params.tag!);
-posts.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+posts.sort(newestFirst);
 ---
 <BaseLayout title={`标签：${tag}`}><div class="page-heading"><a class="back-link" href="/blog/">← 全部文章</a><h1>#{tag}</h1></div><PostList posts={posts} /></BaseLayout>
