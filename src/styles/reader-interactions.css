@@ -3,20 +3,12 @@
 .post-title-text,.article-title-text{display:inline-block;max-width:100%}
 ::view-transition-group(*){animation-duration:420ms;animation-timing-function:cubic-bezier(.22,.7,.2,1)}
 
-/* A is the public reading layout. The dormant B selectors remain for the local experiment. */
-.reader-mini-nav{display:none}
+/* Focused reading layout. */
 .site-grid--reading{grid-template-columns:0 minmax(0,1fr);gap:0;transition:grid-template-columns .28s ease,gap .28s ease}
 .site-grid--reading .profile-sidebar{width:0;min-width:0;overflow:hidden;visibility:hidden;opacity:0;transition:width .28s ease,opacity .2s ease}
 .site-grid--reading .profile-block,.site-grid--reading .sidebar-group{display:none}
-.site-grid--reading .reader-mini-nav{display:flex;flex-direction:column;gap:10px;opacity:0;transition:opacity .22s ease}
-:root[data-reader-layout=b] .site-grid--reading{grid-template-columns:72px minmax(0,1fr);gap:20px}
-:root[data-reader-layout=b] .site-grid--reading .profile-sidebar{width:72px;visibility:visible;opacity:1;overflow:visible}
-:root[data-reader-layout=b] .site-grid--reading .reader-mini-nav{opacity:1}
-.reader-mini-nav a{display:grid;place-items:center;width:64px;height:58px;border:1px solid var(--line);border-radius:15px;background:var(--surface);color:var(--muted);box-shadow:var(--shadow);font-size:26px;line-height:1;transition:color .2s ease,background .2s ease}
-.reader-mini-nav a:hover,.reader-mini-nav a:focus-visible{color:var(--accent);background:var(--accent-soft)}
 .site-grid--reading .site-main{width:100%}
 .reader-layout{max-width:956px;margin:0 auto;grid-template-columns:minmax(0,1fr) 170px;gap:32px;transition:max-width .28s ease}
-:root[data-reader-layout=b] .reader-layout{max-width:986px}
 .reader-topline{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:25px}
 .reader-topline .back-link{margin:0}
 .reader-desktop-toc{overflow:visible;max-height:none;border:0;padding:8px 0}
@@ -70,5 +62,5 @@
 @media(max-width:380px){.article-reading-page{padding-right:max(46px,calc(38px + env(safe-area-inset-right,0px)))}}
 @media(prefers-reduced-motion:reduce){
   ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:.01ms!important}
-  .site-grid--reading,.site-grid--reading .profile-sidebar,.reader-layout,.reader-mini-nav,.reader-desktop-toc .toc-scroll a,.reader-mobile-toc nav a,.reading-progress,.reading-progress .progress-arc,.article-neighbor{transition-duration:.01ms!important}
+  .site-grid--reading,.site-grid--reading .profile-sidebar,.reader-layout,.reader-desktop-toc .toc-scroll a,.reader-mobile-toc nav a,.reading-progress,.reading-progress .progress-arc,.article-neighbor{transition-duration:.01ms!important}
 }

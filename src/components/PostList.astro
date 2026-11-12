@@ -5,7 +5,6 @@ import FormattedDate from './FormattedDate.astro';
 interface CardExtras {
   coverSrc?: string;
   pageViews?: number; // Page visits, not unique visitors.
-  simulated?: boolean;
 }
 interface Props {
   posts: CollectionEntry<'blog'>[];
@@ -16,7 +15,7 @@ const { posts, cardExtras = {} } = Astro.props;
 {posts.length === 0 ? <p class="empty-state">文章正在路上。先在这里坐一会儿吧。</p> : <div class="post-list">
   {posts.map((post) => {
     const url = `/blog/${post.data.slug}/`;
-    const { coverSrc, pageViews, simulated } = cardExtras[post.data.slug] ?? {};
+    const { coverSrc, pageViews } = cardExtras[post.data.slug] ?? {};
     const hasPageViews = typeof pageViews === 'number' && Number.isSafeInteger(pageViews) && pageViews >= 0;
     return <article class:list={['post-card', { 'has-cover': Boolean(coverSrc) }]}>
       <div class="post-card-body">
@@ -25,9 +24,9 @@ const { posts, cardExtras = {} } = Astro.props;
           <p class="post-summary">{post.data.description}</p>
         </a>
         <div class="post-card-footer">
-          {hasPageViews && <span class="post-page-views" aria-label={`${simulated ? '模拟' : ''}页面访问次数 ${pageViews}`}>
+          {hasPageViews && <span class="post-page-views" aria-label={`页面访问次数 ${pageViews}`}>
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12s3.6-5.5 10-5.5S22 12 22 12s-3.6 5.5-10 5.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
-            <span>{pageViews.toLocaleString('zh-CN')}</span>{simulated && <small>模拟</small>}
+            <span>{pageViews.toLocaleString('zh-CN')}</span>
           </span>}
           <div class="post-card-meta"><FormattedDate date={post.data.pubDate} /><span class="meta-dot" aria-hidden="true">·</span><a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a><span class="post-card-tags">{post.data.tags.map((tag) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</span></div>
         </div>
