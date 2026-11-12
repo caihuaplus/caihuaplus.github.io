@@ -1,4 +1,5 @@
 ---
+import '../../styles/reading-fonts.css';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
@@ -8,7 +9,7 @@ const {Content,headings}=await render(post);
 const toc=headings.filter((heading)=>heading.depth===2||heading.depth===3);
 ---
 <BaseLayout title={post.data.title} description={post.data.description}>
-  <div class="reading-layout"><article class="article"><header class="article-header"><a class="back-link" href="/blog/">← 全部文章</a><h1>{post.data.title}</h1><div class="post-meta"><FormattedDate date={post.data.pubDate} /><span>·</span><a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div><div class="tags">{post.data.tags.map((tag:string)=><a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div></header>
+  <div class="reading-layout"><article class="article article--mixed"><header class="article-header"><a class="back-link" href="/blog/">← 全部文章</a><h1>{post.data.title}</h1><div class="post-meta"><FormattedDate date={post.data.pubDate} /><span>·</span><a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a></div><div class="tags">{post.data.tags.map((tag:string)=><a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div></header>
     {toc.length>0&&<details class="mobile-toc"><summary>文章目录</summary><nav aria-label="手机文章目录">{toc.map((h)=><a class:list={{'toc-sub':h.depth===3}} href={`#${h.slug}`}>{h.text}</a>)}</nav></details>}
     <div class="prose"><Content /></div><footer class="article-end"><span>写到这里，谢谢你读完。</span><a href="/blog/">继续看其他文章 ↗</a></footer></article>
     {toc.length>0&&<aside class="desktop-toc"><p>这篇文章</p><nav aria-label="文章目录">{toc.map((h)=><a class:list={{'toc-sub':h.depth===3}} href={`#${h.slug}`}>{h.text}</a>)}</nav></aside>}

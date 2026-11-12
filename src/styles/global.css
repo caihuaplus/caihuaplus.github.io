@@ -46,7 +46,7 @@
 .font-mode-switch button{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);padding:3px 8px;cursor:pointer}
 .font-mode-switch button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent);font-weight:700}
 .article[data-reading-style="serif"] .article-header h1,.article[data-reading-style="serif"] .prose,
-.article[data-reading-style="mixed"] .article-header h1,.article[data-reading-style="mixed"] .prose :is(h1,h2,h3),
+.article:is(.article--mixed,[data-reading-style="mixed"]) .article-header h1,.article:is(.article--mixed,[data-reading-style="mixed"]) .prose :is(h1,h2,h3),
 .article[data-reading-style="serif-optimized"] .article-header h1,.article[data-reading-style="serif-optimized"] .prose{font-family:"STIX","EarlySummer",ui-serif,Georgia,Cambria,"Times New Roman",serif}
 /* Early Summer's bundled variable font has a real 250–900 weight axis; STIX has 400–700. */
 .article[data-reading-style="serif-optimized"] .prose{font-size:17px;line-height:1.75;letter-spacing:.015em;font-weight:500;color:#252b33;font-synthesis:none}
