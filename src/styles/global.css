@@ -40,6 +40,13 @@
 .article-header{border:0;padding:0;margin-bottom:58px}
 .article-header h1{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:36px;font-weight:700;line-height:1.33;letter-spacing:.05em;text-wrap:balance;margin:0 0 8px}
 .article-header .post-meta{font-size:13px;line-height:1.5;letter-spacing:.01em}
+/* Local reading comparison; the published article template remains Sans until a style is chosen. */
+.font-mode-switch{display:flex;justify-content:flex-end;align-items:center;gap:5px;margin:-9px 0 8px;color:var(--muted);font-size:12px}
+.font-mode-switch span{margin-right:5px}
+.font-mode-switch button{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);padding:3px 8px;cursor:pointer}
+.font-mode-switch button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent);font-weight:700}
+.article[data-reading-style="serif"] .article-header h1,.article[data-reading-style="serif"] .prose{font-family:"STIX","EarlySummer",ui-serif,Georgia,Cambria,"Times New Roman",serif}
+
 .article-header .tags{margin-top:12px}
 .tags{display:flex;flex-wrap:wrap;gap:7px}
 .tags a{color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:6px;font-size:12px}
