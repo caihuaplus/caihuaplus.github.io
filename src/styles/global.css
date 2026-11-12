@@ -8,26 +8,30 @@
 /* Fuwari-style card: a narrow entrance without a cover, image only when supplied. */
 .post-list{display:grid;gap:16px}
 .post-card{position:relative;display:flex;min-height:194px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
-.post-card-body{position:relative;flex:1;min-width:0;padding:27px 78px 25px 36px}
+.post-card-body{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;padding:25px 78px 23px 36px}
 .post-card-body:before{content:"";position:absolute;top:34px;left:17px;width:3px;height:21px;border-radius:3px;background:var(--accent)}
-.post-card h2{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:28px;line-height:1.28;font-weight:750;letter-spacing:-.02em;margin:0 0 14px}
-.post-title-link{transition:color .18s ease}
-.post-title-link:hover,.post-title-link:focus-visible{color:var(--accent)}
-.post-inline-arrow{display:inline-block;margin-left:.12em;color:var(--accent);opacity:0;transform:translateX(-5px);transition:opacity .18s ease,transform .18s ease;font-size:1.1em;line-height:0}
-.post-title-link:hover .post-inline-arrow,.post-title-link:focus-visible .post-inline-arrow{opacity:1;transform:translateX(0)}
-.post-card .post-meta{gap:9px;font-size:13px;line-height:1.5}
-.post-card-tags{display:inline-flex;gap:8px;flex-wrap:wrap}
+.post-card-main{display:block;min-width:0;flex:1}
+.post-card h2{display:flex;align-items:baseline;gap:3px;min-width:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:27px;line-height:1.3;font-weight:750;letter-spacing:-.02em;margin:0 0 13px;transition:color .18s ease}
+.post-card-main:hover h2,.post-card-main:focus-visible h2{color:var(--accent)}
+.post-title-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.post-inline-arrow{flex:none;color:var(--accent);opacity:0;transform:translateX(-5px);transition:opacity .18s ease,transform .18s ease;font-size:1.1em;line-height:1}
+.post-card-main:hover .post-inline-arrow,.post-card-main:focus-visible .post-inline-arrow{opacity:1;transform:translateX(0)}
+.post-summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:14px;line-height:1.7;color:var(--muted);margin:0 0 17px}
+.post-card-footer{display:flex;align-items:flex-end;justify-content:flex-end;gap:12px;min-width:0;font-size:12px;line-height:1.55;color:var(--muted)}
+.post-page-views{display:inline-flex;align-items:center;gap:5px;flex:none;margin-right:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.post-page-views svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.post-page-views small{font-size:10px;color:var(--accent)}
+.post-card-meta{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;text-align:right;min-width:0}
+.post-card-meta a:hover,.post-card-meta a:focus-visible{color:var(--accent)}
+.post-card-tags{display:inline-flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
 .post-card-tags:before{content:"·";color:var(--muted)}
-.post-card-tags a{color:var(--muted)}
-.post-card-tags a:hover{color:var(--accent)}
-.post-summary{font-size:14px;color:var(--muted);margin:18px 0 0;line-height:1.65}
 .post-entry{position:absolute;right:12px;top:12px;bottom:12px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:background .18s ease,transform .18s ease}
 .post-entry:active{transform:scale(.96)}
 .post-enter{width:52px;background:var(--accent-soft);color:var(--accent)}
 .post-enter:hover,.post-enter:focus-visible{background:color-mix(in srgb,var(--accent) 23%,var(--surface))}
 .post-enter span{font-family:Arial,sans-serif;font-size:43px;line-height:1;transform:translateY(-2px);transition:transform .18s ease}
 .post-enter:hover span,.post-enter:focus-visible span{transform:translate(4px,-2px)}
-.post-card.has-cover .post-card-body{padding-right:28px;margin-right:28%}
+.post-card.has-cover .post-card-body{padding-right:25px;margin-right:28%}
 .post-cover{width:28%;background:var(--surface-soft)}
 .post-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s ease,filter .25s ease}
 .post-cover:hover img,.post-cover:focus-visible img{transform:scale(1.04);filter:brightness(.72)}
@@ -87,4 +91,19 @@
   .profile-block h2{white-space:nowrap}
 }
 @media(max-width:380px){.profile-block{column-gap:9px}}
+@media(max-width:650px){
+  .post-card{min-height:178px}
+  .post-card-body{padding:20px 19px 19px}
+  .post-card h2{font-size:22px;margin-bottom:10px}
+  .post-card-main .post-inline-arrow{opacity:1;transform:none}
+  .post-summary{font-size:13px;line-height:1.6;margin-bottom:15px}
+  .post-card-footer{align-items:flex-start;flex-wrap:wrap;row-gap:5px}
+  .post-card-meta{flex:1 1 180px}
+  .post-card-tags{display:inline-flex}
+  .post-card.has-cover .post-card-body{margin-right:0;padding:19px}
+  .post-card.has-cover{display:block}
+  .post-card.has-cover .post-card-main{min-height:112px}
+  .post-card.has-cover .post-summary{padding-right:104px}
+  .post-card.has-cover .post-cover{position:absolute;top:59px;right:12px;bottom:auto;width:92px;height:70px;margin:0}
+}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
