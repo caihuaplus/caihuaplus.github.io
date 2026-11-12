@@ -17,7 +17,6 @@ function initArticleReader() {
   const desktopProgress = desktopTocColumn?.querySelector<HTMLButtonElement>('.reading-progress');
   const mobileToc = document.querySelector<HTMLDetailsElement>('.reader-mobile-toc');
   const progressButtons = [...document.querySelectorAll<HTMLButtonElement>('.reading-progress')];
-  const layoutButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-reader-choice]')];
   let frame = 0;
   let activeIndex = -1;
   let lastPercent = -1;
@@ -109,22 +108,6 @@ function initArticleReader() {
     history.replaceState(null, '', location.pathname + location.search);
     window.scrollTo({ top: Math.max(0, article.getBoundingClientRect().top + window.scrollY - headerOffset()), behavior: behavior() });
   }, { signal }));
-
-  const initialLayout = document.documentElement.dataset.readerLayout === 'b' ? 'b' : 'a';
-  layoutButtons.forEach((button) => {
-    button.setAttribute('aria-pressed', String(button.dataset.readerChoice === initialLayout));
-    button.addEventListener('click', () => {
-      const choice = button.dataset.readerChoice === 'b' ? 'b' : 'a';
-      document.documentElement.dataset.readerLayout = choice;
-      layoutButtons.forEach((item) => item.setAttribute('aria-pressed', String(item.dataset.readerChoice === choice)));
-      try { sessionStorage.setItem('reader-layout', choice); } catch { /* Storage may be unavailable. */ }
-      const url = new URL(location.href);
-      url.searchParams.set('layout', choice);
-      history.replaceState(null, '', url);
-      positionDesktopProgress();
-      schedule();
-    }, { signal });
-  });
 
   window.addEventListener('scroll', schedule, { passive: true, signal });
   window.addEventListener('resize', () => { positionDesktopProgress(); schedule(); }, { passive: true, signal });

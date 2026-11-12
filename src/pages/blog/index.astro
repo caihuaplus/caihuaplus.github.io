@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostList from '../../components/PostList.astro';
-const posts=(await getCollection('blog')).sort((a,b)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf());
+import { newestFirst } from '../../utils/post-order.mjs';
+const posts=(await getCollection('blog')).sort(newestFirst);
 ---
 <BaseLayout title="全部文章" description="生活、阅读、影视、技术和独立开发的文章。"><div class="page-heading"><p class="eyebrow">ALL POSTS</p><h1>全部文章</h1><p>不分轻重，都是写下来的日子。共 {posts.length} 篇。</p></div><PostList posts={posts} /></BaseLayout>

@@ -3,7 +3,8 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostList from '../components/PostList.astro';
 import { SITE_DESCRIPTION } from '../consts';
-const posts = (await getCollection('blog')).sort((a,b)=>b.data.pubDate.valueOf()-a.data.pubDate.valueOf());
+import { newestFirst } from '../utils/post-order.mjs';
+const posts = (await getCollection('blog')).sort(newestFirst);
 ---
 <BaseLayout>
   <section class="home-intro"><p class="eyebrow">WELCOME / 欢迎来坐坐</p><h1>日常的边上，<br /><em>总有一些番外。</em></h1><p>{SITE_DESCRIPTION} 在这里写生活、读书、电影，也记下一些技术和独立开发的尝试。</p><a class="inline-link" href="/blog/">去看看文章 <span>↗</span></a></section>
