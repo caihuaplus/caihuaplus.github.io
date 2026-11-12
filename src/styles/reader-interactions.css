@@ -3,7 +3,7 @@
 .post-title-text,.article-title-text{display:inline-block;max-width:100%}
 ::view-transition-group(*){animation-duration:420ms;animation-timing-function:cubic-bezier(.22,.7,.2,1)}
 
-/* A is the default reading layout; ?layout=b remains available for local comparison. */
+/* A is the public reading layout. The dormant B selectors remain for the local experiment. */
 .reader-mini-nav{display:none}
 .site-grid--reading{grid-template-columns:0 minmax(0,1fr);gap:0;transition:grid-template-columns .28s ease,gap .28s ease}
 .site-grid--reading .profile-sidebar{width:0;min-width:0;overflow:hidden;visibility:hidden;opacity:0;transition:width .28s ease,opacity .2s ease}

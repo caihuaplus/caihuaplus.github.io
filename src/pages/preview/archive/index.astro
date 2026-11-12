@@ -1,4 +1,0 @@
----
-import BaseLayout from '../../../layouts/BaseLayout.astro';import FormattedDate from '../../../components/FormattedDate.astro';import {samplePosts} from '../../../data/themePreview';
----
-<BaseLayout title="归档 · 主题预览"><div class="page-heading"><p class="eyebrow">ARCHIVE</p><h1>归档</h1><p>按时间翻看写过的东西。</p></div><section class="archive-year"><h2>2026</h2><ul>{samplePosts.map(p=><li><FormattedDate date={p.data.pubDate}/><a href="/preview/article/">{p.data.title}</a></li>)}</ul></section></BaseLayout>

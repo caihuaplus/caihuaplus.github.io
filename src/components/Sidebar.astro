@@ -1,15 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
-import { samplePosts } from '../data/themePreview';
-const isPreview = Astro.url.pathname.startsWith('/preview/');
-const posts = isPreview ? samplePosts : await getCollection('blog');
-const href = (path: string) => isPreview ? `/preview${path}` : path;
+const posts = await getCollection('blog');
 const categories = [...new Set(posts.map((p) => p.data.category))];
 const tags = [...new Set(posts.flatMap((p) => p.data.tags))].slice(0, 12);
 ---
 <aside class="profile-sidebar" aria-label="个人信息">
   <nav class="reader-mini-nav" aria-label="阅读时的快捷导航"><a href="/" aria-label="首页" title="首页"><span aria-hidden="true">⌂</span></a><a href="/blog/" aria-label="全部文章" title="全部文章"><span aria-hidden="true">☰</span></a><a href="/archive/" aria-label="归档" title="归档"><span aria-hidden="true">▤</span></a></nav>
-  <section class="profile-block"><img class="avatar" src="/avatar.svg" width="96" height="96" alt="王菜花的原创花朵头像" /><h2>王菜花</h2><p>在日常与想法之间，写一点自己的番外。</p><div class="profile-links"><a href={href('/blog/')}>文章</a><a href={href('/archive/')}>归档</a><a href="/rss.xml">订阅</a></div></section>
-  <section class="sidebar-group"><h3>分类 <a href={href('/category/')}>全部 ↗</a></h3>{categories.length ? <ul>{categories.map((category) => <li><a href={isPreview ? '/preview/category/' : `/category/${encodeURIComponent(category)}/`}>{category}<span>{posts.filter((p) => p.data.category === category).length}</span></a></li>)}</ul> : <p>文章发布后会出现在这里。</p>}</section>
-  <section class="sidebar-group"><h3>标签 <a href={href('/tag/')}>全部 ↗</a></h3>{tags.length ? <div class="sidebar-tags">{tags.map((tag) => <a href={isPreview ? '/preview/tag/' : `/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div> : <p>慢慢收集写作的线索。</p>}</section>
+  <section class="profile-block"><img class="avatar" src="/avatar.svg" width="96" height="96" alt="王菜花的原创花朵头像" /><h2>王菜花</h2><p>在日常与想法之间，写一点自己的番外。</p><div class="profile-links"><a href="/blog/">文章</a><a href="/archive/">归档</a><a href="/rss.xml">订阅</a></div></section>
+  <section class="sidebar-group"><h3>分类 <a href="/category/">全部 ↗</a></h3>{categories.length ? <ul>{categories.map((category) => <li><a href={`/category/${encodeURIComponent(category)}/`}>{category}<span>{posts.filter((p) => p.data.category === category).length}</span></a></li>)}</ul> : <p>文章发布后会出现在这里。</p>}</section>
+  <section class="sidebar-group"><h3>标签 <a href="/tag/">全部 ↗</a></h3>{tags.length ? <div class="sidebar-tags">{tags.map((tag) => <a href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}</div> : <p>慢慢收集写作的线索。</p>}</section>
 </aside>

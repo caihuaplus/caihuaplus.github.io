@@ -1,5 +1,0 @@
----
-import BaseLayout from '../../../layouts/BaseLayout.astro';import {samplePosts} from '../../../data/themePreview';
-const tags=[...new Set(samplePosts.flatMap(p=>p.data.tags))];
----
-<BaseLayout title="标签 · 主题预览"><div class="page-heading"><p class="eyebrow">TAGS</p><h1>标签</h1><p>一些反复出现的词。</p></div><div class="tag-cloud">{tags.map(tag=><a href="/preview/blog/">#{tag}</a>)}</div></BaseLayout>

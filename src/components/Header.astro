@@ -1,15 +1,13 @@
 ---
 import { SITE_TITLE } from '../consts';
-const isPreview = Astro.url.pathname.startsWith('/preview/');
-const href = (path: string) => isPreview ? path === '/' ? '/preview/' : `/preview${path}` : path;
 ---
 <header class="site-header">
   <div class="header-inner">
-    <a class="brand" href={href('/')} aria-label={`${SITE_TITLE}首页`}><span class="brand-mark">✳</span>{SITE_TITLE}</a>
+    <a class="brand" href="/" aria-label={`${SITE_TITLE}首页`}><span class="brand-mark">✳</span>{SITE_TITLE}</a>
     <nav class="desktop-nav" aria-label="主导航">
-      <a href={href('/')}>首页</a><a href={href('/blog/')}>文章</a><a href={href('/archive/')}>归档</a><a href={href('/category/')}>分类</a><a href={href('/tag/')}>标签</a>
+      <a href="/">首页</a><a href="/blog/">文章</a><a href="/archive/">归档</a><a href="/category/">分类</a><a href="/tag/">标签</a>
     </nav>
     <div class="header-actions"><a class="rss-link" href="/rss.xml" aria-label="RSS 订阅">RSS</a><button class="icon-button" id="theme-toggle" type="button" aria-label="切换深浅色模式">◐</button><button class="icon-button menu-button" id="menu-toggle" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="打开菜单">☰</button></div>
   </div>
-  <nav id="mobile-menu" class="mobile-menu" aria-label="手机导航" hidden><a href={href('/')}>首页</a><a href={href('/blog/')}>文章</a><a href={href('/archive/')}>归档</a><a href={href('/category/')}>分类</a><a href={href('/tag/')}>标签</a><a href="/rss.xml">RSS</a></nav>
+  <nav id="mobile-menu" class="mobile-menu" aria-label="手机导航" hidden><a href="/">首页</a><a href="/blog/">文章</a><a href="/archive/">归档</a><a href="/category/">分类</a><a href="/tag/">标签</a><a href="/rss.xml">RSS</a></nav>
 </header>
