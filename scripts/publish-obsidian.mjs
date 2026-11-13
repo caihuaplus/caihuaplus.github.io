@@ -61,17 +61,75 @@ function parsePost(file, root, raw) {
   const data = parsed.data;
   if (data.publish === undefined || data.publish === false) return null;
   if (data.publish !== true) fail(relative, 'publish 必须是布尔值 true 或 false');
-  for (const name of ['title', 'description', 'category']) {
+  for (const name of ['title', 'category']) {
     if (typeof data[name] !== 'string' || !data[name].trim()) fail(relative, `${name} 必须是非空文字`);
   }
+  if (data.description !== undefined && typeof data.description !== 'string') fail(relative, 'description 必须是文字');
   const date = data.pubDate instanceof Date ? data.pubDate : new Date(data.pubDate);
   if (!data.pubDate || Number.isNaN(date.valueOf())) fail(relative, 'pubDate 必须是有效日期');
   const tags = data.tags ?? [];
   if (!Array.isArray(tags) || tags.some((tag) => typeof tag !== 'string' || !tag.trim())) fail(relative, 'tags 必须是文字数组');
   const slug = data.slug === undefined ? autoSlug(relative) : data.slug;
   if (typeof slug !== 'string' || !slugPattern.test(slug) || slug.length > 100) fail(relative, 'slug 只能使用字母、数字及中间连字符，最长 100 字符');
-  return { file, relative, body: parsed.content, title: data.title.trim(), description: data.description.trim(),
+  return { file, relative, body: parsed.content, title: data.title.trim(), description: data.description?.trim() ?? '',
     category: data.category.trim(), pubDate: date.toISOString().slice(0, 10), tags: tags.map((tag) => tag.trim()), slug };
+}
+
+function inlineText(node) {
+  if (node.type === 'text' || node.type === 'inlineCode') return node.value;
+  if (node.type === 'break') return ' ';
+  if (node.type === 'image' || node.type === 'imageReference') return '';
+  if (['strong', 'emphasis', 'delete', 'link', 'linkReference'].includes(node.type)) {
+    return (node.children ?? []).map(inlineText).join('');
+  }
+  return '';
+}
+
+function hasOrdinaryText(node) {
+  if (node.type === 'text') {
+    const value = node.value.trim();
+    return /[\p{Letter}\p{Number}]/u.test(value) && !/^(?:https?:\/\/|mailto:|www\.)\S+$/i.test(value);
+  }
+  if (['strong', 'emphasis', 'delete'].includes(node.type)) return (node.children ?? []).some(hasOrdinaryText);
+  return false;
+}
+
+function shortenDescription(value) {
+  const chars = Array.from(new Intl.Segmenter('zh-CN', { granularity: 'grapheme' }).segment(value), ({ segment }) => segment);
+  let codePoints = 0;
+  let limit = 0;
+  while (limit < chars.length && codePoints + Array.from(chars[limit]).length <= 150) {
+    codePoints += Array.from(chars[limit]).length;
+    limit++;
+  }
+  if (limit === chars.length) return value;
+
+  let sentenceEnd = 0;
+  let used = 0;
+  for (let i = 0; i < limit; i++) {
+    used += Array.from(chars[i]).length;
+    if (used >= 75 && (/[。！？!?]/u.test(chars[i]) || (chars[i] === '.' && (chars[i + 1] === ' ' || i + 1 === limit)))) sentenceEnd = i + 1;
+  }
+  if (sentenceEnd) return chars.slice(0, sentenceEnd).join('').trimEnd();
+
+  let end = 0;
+  used = 0;
+  while (end < chars.length && used + Array.from(chars[end]).length <= 149) {
+    used += Array.from(chars[end]).length;
+    end++;
+  }
+  const prefix = chars.slice(0, end).join('');
+  const lastSpace = prefix.lastIndexOf(' ');
+  return `${(lastSpace >= 110 ? prefix.slice(0, lastSpace) : prefix).trimEnd()}…`;
+}
+
+function descriptionFromTree(tree, relative) {
+  for (const node of tree.children) {
+    if (node.type !== 'paragraph' || !node.children.some(hasOrdinaryText)) continue;
+    const text = node.children.map(inlineText).join('').replace(/\s+/gu, ' ').trim();
+    if (text) return shortenDescription(text);
+  }
+  fail(relative, 'description 为空，正文中没有可提取的有效段落');
 }
 
 function resolvePost(target, current, posts, byPath, byName) {
@@ -169,7 +227,7 @@ async function transformMarkdown(post, context, stage) {
     }
   }
   await visit(tree, null, 0);
-  return processor.stringify(tree);
+  return { body: processor.stringify(tree), description: post.description || descriptionFromTree(tree, post.relative) };
 }
 
 export async function generate(vault, stage) {
@@ -198,8 +256,8 @@ export async function generate(vault, stage) {
   const context = { root, posts, byPath, byName };
   await fs.mkdir(stage, { recursive: true });
   for (const post of posts) {
-    const body = await transformMarkdown(post, context, stage);
-    await fs.writeFile(path.join(stage, `${post.slug}.md`), frontmatterFor(post) + body);
+    const { body, description } = await transformMarkdown(post, context, stage);
+    await fs.writeFile(path.join(stage, `${post.slug}.md`), frontmatterFor({ ...post, description }) + body);
   }
   return { count: posts.length, slugs: posts.map((post) => post.slug) };
 }
