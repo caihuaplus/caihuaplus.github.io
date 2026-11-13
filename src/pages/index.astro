@@ -9,6 +9,29 @@ const posts = (await getCollection('blog')).sort(newestFirst);
 const { allUrls, categories } = getDiscoveryData(posts);
 ---
 <BaseLayout>
+  <script slot="head" is:inline>
+    // On a return from random discovery, leave that article title out of the shared transition.
+    window.addEventListener('pagereveal', (event) => {
+      let randomArticleUrl;
+      try {
+        randomArticleUrl = sessionStorage.getItem('random-discovery-return-url');
+        sessionStorage.removeItem('random-discovery-return-url');
+      } catch { return; }
+      if (!randomArticleUrl || !event.viewTransition) return;
+      const fromUrl = window.navigation?.activation?.from?.url;
+      if (fromUrl && fromUrl !== randomArticleUrl) return;
+      const title = Array.from(document.querySelectorAll('.post-card-main'))
+        .find((link) => link.href === randomArticleUrl)
+        ?.querySelector('.post-title-text');
+      if (!title) return;
+      const previousName = title.style.viewTransitionName;
+      title.style.viewTransitionName = 'none';
+      event.viewTransition.ready.then(
+        () => { title.style.viewTransitionName = previousName; },
+        () => { title.style.viewTransitionName = previousName; },
+      );
+    });
+  </script>
   <section class="home-intro"><p class="eyebrow">WELCOME / 欢迎来坐坐</p><h1>日常的边上，<br /><em>总有一些番外。</em></h1><p>{SITE_DESCRIPTION} 在这里写生活、读书、电影，也记下一些技术和独立开发的尝试。</p><a class="inline-link" href="/blog/">去看看文章 <span>↗</span></a></section>
   {categories.length >= 2 && <section class="home-categories" aria-labelledby="random-discovery-heading">
     <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2 id="random-discovery-heading"><a class="random-heading-link" href={allUrls[0]} data-random-urls={JSON.stringify(allUrls)} aria-label="随便逛逛：随机阅读一篇公开文章">随便逛逛 <span aria-hidden="true">↝</span></a></h2></div></div>
@@ -19,11 +42,33 @@ const { allUrls, categories } = getDiscoveryData(posts);
 <script>
   import { pickRandomUrl } from '../utils/random-discovery.mjs';
 
+  let pendingRandomUrl: string | undefined;
   for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-random-urls]')) {
     const urls = JSON.parse(link.dataset.randomUrls ?? '[]') as string[];
     link.addEventListener('click', () => {
       const url = pickRandomUrl(urls);
-      if (url) link.href = url;
+      if (url) {
+        link.href = url;
+        pendingRandomUrl = link.href;
+      }
     });
   }
+
+  window.addEventListener('pageswap', (event) => {
+    const randomArticleUrl = pendingRandomUrl;
+    pendingRandomUrl = undefined;
+    if (!randomArticleUrl || event.activation?.entry?.url !== randomArticleUrl) return;
+    try { sessionStorage.setItem('random-discovery-return-url', randomArticleUrl); } catch {}
+    if (!event.viewTransition) return;
+    const title = Array.from(document.querySelectorAll<HTMLAnchorElement>('.post-card-main'))
+      .find((link) => link.href === randomArticleUrl)
+      ?.querySelector<HTMLElement>('.post-title-text');
+    if (!title) return;
+    const previousName = title.style.viewTransitionName;
+    title.style.viewTransitionName = 'none';
+    event.viewTransition.finished.then(
+      () => { title.style.viewTransitionName = previousName; },
+      () => { title.style.viewTransitionName = previousName; },
+    );
+  });
 </script>

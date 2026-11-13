@@ -10,7 +10,7 @@ const { title, description, reading = false } = Astro.props;
 ---
 <!doctype html>
 <html lang="zh-CN">
-  <head><BaseHead title={title} description={description} /><script is:inline>try{document.documentElement.dataset.theme=localStorage.getItem('blog-theme')|| (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{document.documentElement.dataset.theme='light'}</script></head>
+  <head><BaseHead title={title} description={description} /><script is:inline>try{document.documentElement.dataset.theme=localStorage.getItem('blog-theme')|| (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{document.documentElement.dataset.theme='light'}</script><slot name="head" /></head>
   <body><Header /><div class:list={['site-grid', { 'site-grid--reading': reading }]}><Sidebar /><main class="site-main"><slot /></main></div><div class="footer-wrap"><Footer /></div>
   <script is:inline>
     const themeButton=document.querySelector('#theme-toggle');
